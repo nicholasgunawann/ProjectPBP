@@ -33,20 +33,23 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders-saya', [OrderController::class, 'myOrders'])->name('orders.mine');
 });
 
-// Admin area
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/products', [ProductAdminController::class, 'index'])->name('products.index');
-    Route::get('/products/create', [ProductAdminController::class, 'create'])->name('products.create');
-    Route::post('/products', [ProductAdminController::class, 'store'])->name('products.store');
-    Route::get('/products/{product}/edit', [ProductAdminController::class, 'edit'])->name('products.edit');
-    Route::put('/products/{product}', [ProductAdminController::class, 'update'])->name('products.update');
-    Route::delete('/products/{product}', [ProductAdminController::class, 'destroy'])->name('products.destroy');
-    Route::patch('/products/{product}/toggle', [ProductAdminController::class, 'toggleActive'])->name('products.toggle');
+// Admin area 
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'admin'])
+    ->group(function () {
+        Route::get('/products', [ProductAdminController::class, 'index'])->name('products.index');
+        Route::get('/products/create', [ProductAdminController::class, 'create'])->name('products.create');
+        Route::post('/products', [ProductAdminController::class, 'store'])->name('products.store');
+        Route::get('/products/{product}/edit', [ProductAdminController::class, 'edit'])->name('products.edit');
+        Route::put('/products/{product}', [ProductAdminController::class, 'update'])->name('products.update');
+        Route::delete('/products/{product}', [ProductAdminController::class, 'destroy'])->name('products.destroy');
+        Route::patch('/products/{product}/toggle', [ProductAdminController::class, 'toggleActive'])->name('products.toggle');
 
-    Route::get('/orders', [OrderAdminController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrderAdminController::class, 'show'])->name('orders.show');
-    Route::patch('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.updateStatus');
-});
+        Route::get('/orders', [OrderAdminController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderAdminController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.updateStatus');
+    });
 
 // Route bawaan auth/profile dari Laravel Breeze
 Route::get('/dashboard', function () {

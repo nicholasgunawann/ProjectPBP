@@ -25,9 +25,6 @@ class CartController extends Controller
     {
         $userId = Auth::id();
         if (!$userId) {
-            // kalau belum ada auth, kamu bisa redirect ke login
-            // return redirect()->route('login');
-            // ATAU untuk demo:
             abort(403, 'Harus login untuk melihat keranjang.');
         }
 
