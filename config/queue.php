@@ -4,7 +4,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Queue Connection Name   ppppp
+    | Default Queue Connection Name   
     |--------------------------------------------------------------------------
     |
     | Laravel's queue API supports an assortment of back-ends via a single
@@ -91,3 +91,5 @@ return [
     ],
 
 ];
+// ppppp ini iman
+// coba test komen di file queue
