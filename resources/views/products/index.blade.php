@@ -44,4 +44,4 @@
         </div>
     </div>
 </x-app-layout>
-{{-- ini komentar, cuma keliatan di file .blade.php aja --}}
+
