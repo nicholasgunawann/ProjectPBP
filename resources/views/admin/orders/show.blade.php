@@ -1,7 +1,7 @@
 <x-app-layout>
   <x-slot name="header">
     <h2 class="font-semibold text-xl text-gray-800">
-      Admin • Detail Pesanan #{{ $order->id }}
+      Detail Pesanan #{{ $order->id }}
     </h2>
   </x-slot>
 
@@ -15,11 +15,27 @@
         <p><strong>Alamat:</strong> {{ $order->address_text }}</p>
         <p><strong>Tanggal Pesan:</strong> {{ $order->created_at->format('d M Y H:i') }}</p>
         <p><strong>Status:</strong>
-          <span class="px-2 py-1 rounded text-white 
-            @if($order->status=='diproses') bg-yellow-500 
-            @elseif($order->status=='dikirim') bg-blue-500 
-            @elseif($order->status=='selesai') bg-green-600 
-            @elseif($order->status=='batal') bg-red-500 
+          @php
+            $status = strtolower($order->status);
+            $warna = match($status) {
+                'diproses' => 'bg-yellow-500',
+                'dikirim'  => 'bg-blue-500',
+                'selesai'  => 'bg-green-600',
+                'batal'    => 'bg-red-500',
+                default    => 'bg-gray-400',
+            };
+          @endphp
+
+          @php
+            $status = strtolower($order->status);
+          @endphp
+
+          <span class="inline-block px-3 py-1 rounded font-semibold text-white
+            @if($status == 'diproses') bg-yellow-500
+            @elseif($status == 'dikirim') bg-blue-500
+            @elseif($status == 'selesai') bg-green-600
+            @elseif($status == 'batal') bg-red-500
+            @else bg-gray-400
             @endif">
             {{ strtoupper($order->status) }}
           </span>
@@ -59,7 +75,7 @@
         <form method="POST" action="{{ route('admin.orders.updateStatus', $order) }}">
           @csrf
           @method('PATCH')
-          <select name="status" class="border rounded p-2 mr-2">
+          <select name="status" class="border rounded p-2 mr-4 w-28 text-gray-700 focus:ring-2 focus:ring-gray-400">
             <option value="diproses" @selected($order->status == 'diproses')>Diproses</option>
             <option value="dikirim" @selected($order->status == 'dikirim')>Dikirim</option>
             <option value="selesai" @selected($order->status == 'selesai')>Selesai</option>
