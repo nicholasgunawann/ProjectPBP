@@ -12,19 +12,24 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <!-- Semua bisa lihat Produk -->
                     <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
                         {{ __('Produk') }}
                     </x-nav-link>
 
                     @auth
-                        <x-nav-link :href="route('cart.show')" :active="request()->routeIs('cart.*')">
-                            {{ __('Keranjang') }}
-                        </x-nav-link>
+                        {{-- Jika user biasa --}}
+                        @if(auth()->user()->role === 'user')
+                            <x-nav-link :href="route('cart.show')" :active="request()->routeIs('cart.*')">
+                                {{ __('Keranjang') }}
+                            </x-nav-link>
 
-                        <x-nav-link :href="route('orders.mine')" :active="request()->is('orders-saya')">
-                            {{ __('Pesanan') }}
-                        </x-nav-link>
+                            <x-nav-link :href="route('orders.mine')" :active="request()->is('orders-saya')">
+                                {{ __('Pesanan Saya') }}
+                            </x-nav-link>
+                        @endif
 
+                        {{-- Jika admin --}}
                         @if(auth()->user()->role === 'admin')
                             <x-nav-link :href="route('admin.products.index')" :active="request()->is('admin/*')">
                                 {{ __('Admin') }}
@@ -32,7 +37,6 @@
                         @endif
                     @endauth
                 </div>
-            </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -99,12 +103,16 @@
             </x-responsive-nav-link>
 
             @auth
-                <x-responsive-nav-link :href="route('cart.show')" :active="request()->routeIs('cart.*')">
-                    {{ __('Keranjang') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('orders.mine')" :active="request()->is('orders-saya')">
-                    {{ __('Pesanan') }}
-                </x-responsive-nav-link>
+                @if(auth()->user()->role === 'user')
+                    <x-responsive-nav-link :href="route('cart.show')" :active="request()->routeIs('cart.*')">
+                        {{ __('Keranjang') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('orders.mine')" :active="request()->is('orders-saya')">
+                        {{ __('Pesanan Saya') }}
+                    </x-responsive-nav-link>
+                @endif
+
                 @if(auth()->user()->role === 'admin')
                     <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->is('admin/*')">
                         {{ __('Admin') }}

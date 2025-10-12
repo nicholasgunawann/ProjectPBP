@@ -23,14 +23,19 @@ class ProductAdminController extends Controller
     public function index(Request $request)
     {
         $q = $request->query('q');
+        $perPage = $request->query('per_page', 5); // default tampil 5
 
-        $products = Product::with('category')
-            ->when($q, fn($qq)=>$qq->where('name','like',"%{$q}%"))
+        $products = \App\Models\Product::with('category')
+            ->when($q, fn($qq) => $qq->where('name', 'like', "%{$q}%"))
             ->orderByDesc('id')
-            ->paginate(15)
-            ->withQueryString();
+            ->get();
 
-        return view('admin.products.index', compact('products','q'));
+        $orders = \App\Models\Order::with('user')
+            ->orderByDesc('id')
+            ->paginate($perPage)
+            ->appends(['per_page' => $perPage]);
+
+        return view('admin.products.index', compact('products', 'orders', 'q', 'perPage'));
     }
 
     public function create()
