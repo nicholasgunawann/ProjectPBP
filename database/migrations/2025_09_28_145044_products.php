@@ -16,8 +16,10 @@ return new class extends Migration
             $table->string('name');
             $table->integer('price');
             $table->integer('stock');
-            $table->foreignId('category_id')->constrained();
-            $table->boolean('is_active')->default(true);
+            $table->foreignId('category_id')
+                ->constrained();
+            $table->boolean('is_active')
+                ->default(true);
             $table->timestamps();
         });
     }

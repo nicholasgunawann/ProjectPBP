@@ -38,6 +38,10 @@ Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth', 'admin'])
     ->group(function () {
+        // Dashboard
+        Route::get('/dashboard', function () {return view('admin.dashboard');})->name('dashboard');
+
+        // Manajemen produk
         Route::get('/products', [ProductAdminController::class, 'index'])->name('products.index');
         Route::get('/products/create', [ProductAdminController::class, 'create'])->name('products.create');
         Route::post('/products', [ProductAdminController::class, 'store'])->name('products.store');
@@ -46,6 +50,7 @@ Route::prefix('admin')
         Route::delete('/products/{product}', [ProductAdminController::class, 'destroy'])->name('products.destroy');
         Route::patch('/products/{product}/toggle', [ProductAdminController::class, 'toggleActive'])->name('products.toggle');
 
+        // Manajemen pesanan
         Route::get('/orders', [OrderAdminController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderAdminController::class, 'show'])->name('orders.show');
         Route::patch('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.updateStatus');

@@ -12,13 +12,72 @@ class ProductsTableSeeder extends Seeder
     {
         $now = Carbon::now();
 
+        // Ambil ID kategori berdasarkan nama
+        $pakaianId = DB::table('categories')->where('name', 'Pakaian')->value('id');
+        $souvenirId = DB::table('categories')->where('name', 'Souvenir')->value('id');
+        $makananId = DB::table('categories')->where('name', 'Makanan')->value('id');
+
+        // Insert data produk
         DB::table('products')->insert([
-            ['name' => 'Headphone Bluetooth', 'price' => 350000, 'stock' => 20, 'category_id' => 1, 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Keyboard Mekanik',     'price' => 550000, 'stock' => 15, 'category_id' => 1, 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Kaos Polos',           'price' => 80000,  'stock' => 100,'category_id' => 2, 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Kemeja Lengan Panjang','price' => 175000, 'stock' => 40, 'category_id' => 2, 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Detergen 2kg',         'price' => 45000,  'stock' => 60, 'category_id' => 3, 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Pewangi Pakaian',      'price' => 30000,  'stock' => 80, 'category_id' => 3, 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            // Souvenir
+            [
+                'name' => 'Dompet Rajut',
+                'price' => 10000,
+                'stock' => 400,
+                'category_id' => $souvenirId,
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'name' => 'Gantungan Kunci',
+                'price' => 5000,
+                'stock' => 1000,
+                'category_id' => $souvenirId,
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Pakaian
+            [
+                'name' => 'Jaket Denim',
+                'price' => 75000,
+                'stock' => 100,
+                'category_id' => $pakaianId,
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'name' => 'Celana Mihu Mihu',
+                'price' => 95000,
+                'stock' => 500,
+                'category_id' => $pakaianId,
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+
+            // Makanan
+            [
+                'name' => 'Risol Mayo Frozen',
+                'price' => 25000,
+                'stock' => 200,
+                'category_id' => $makananId,
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'name' => 'Keripik Pisang Cokelat',
+                'price' => 18000,
+                'stock' => 350,
+                'category_id' => $makananId,
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
         ]);
     }
 }

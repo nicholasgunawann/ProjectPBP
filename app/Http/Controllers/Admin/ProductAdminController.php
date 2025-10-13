@@ -84,11 +84,36 @@ class ProductAdminController extends Controller
         return redirect()->route('admin.products.index')->with('success','Produk diupdate.');
     }
 
-    public function destroy(Product $product)
+    public function destroy(Request $request, $id)
     {
-        // jika ingin cegah hapus saat ada order_items, bisa cek dulu
-        $product->delete();
-        return back()->with('success','Produk dihapus.');
+        $product = Product::findOrFail($id);
+
+        // jika masih ada di keranjang pelanggan
+        if ($product->cartItems()->exists()) {
+            // jika admin sudah konfirmasi, hapus pakai cascade
+            if ($request->has('confirm') && $request->confirm == 'yes') {
+                $product->delete(); 
+                return redirect()->route('admin.products.index')
+                                ->with('success', 'Produk dan item terkait di keranjang berhasil dihapus.');
+            }
+
+            // jika admin belum konfirmasi, mengirimkan pesan ke view
+            return back()->with('confirm_delete', [
+                'id' => $product->id,
+                'name' => $product->name,
+                'message' => "Produk ini masih ada di keranjang pelanggan. Anda yakin akan menghapus produk ini?",
+            ]);
+        }
+
+        // jika tidak ada di keranjang ataupun stok kosong
+        if ($product->stock <= 0 || !$product->cartItems()->exists()) {
+            $product->delete();
+            return redirect()->route('admin.products.index')
+                            ->with('success', 'Produk berhasil dihapus.');
+        }
+
+        // default fallback
+        return back()->with('error', 'Terjadi kesalahan saat menghapus produk.');
     }
 
     public function toggleActive(Product $product)

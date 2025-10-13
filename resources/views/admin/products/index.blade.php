@@ -18,6 +18,25 @@
           </a>
         </div>
 
+      @if (session('confirm_delete'))
+          @php $confirm = session('confirm_delete'); @endphp
+          <div class="mb-4 bg-yellow-50 border border-yellow-300 text-yellow-800 p-4 rounded-md">
+              <p class="mb-2 font-medium">{{ $confirm['message'] }}</p>
+              <form method="POST" action="{{ route('admin.products.destroy', $confirm['id']) }}">
+                  @csrf
+                  @method('DELETE')
+                  <input type="hidden" name="confirm" value="yes">
+                  <button type="submit"
+                          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">
+                      Ya, Hapus
+                  </button>
+                  <a href="{{ route('admin.dashboard') }}" class="ml-2 text-gray-600 underline">
+                      Batal
+                  </a>
+              </form>
+          </div>
+      @endif
+
         @if($products->count())
           <table class="w-full text-left">
             <thead style="background-color: #4ade80; color: #ffffff;">

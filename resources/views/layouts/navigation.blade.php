@@ -33,8 +33,12 @@
 
                         {{-- Jika admin --}}
                         @if(auth()->user()->role === 'admin')
-                            <x-nav-link :href="route('admin.products.index')" :active="request()->is('admin/*')">
-                                {{ __('Admin') }}
+                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                                {{ __('Dashboard') }}
+                            </x-nav-link>
+
+                            <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                                {{ __('Manage') }}
                             </x-nav-link>
                         @endif
                     @endauth

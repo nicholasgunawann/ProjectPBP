@@ -34,25 +34,6 @@ class OrderItemsTableSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-
-            [
-                'order_id' => 2,
-                'product_id' => 5,
-                'price' => $prices[5],
-                'qty' => 2,
-                'subtotal' => $prices[5] * 2,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'order_id' => 2,
-                'product_id' => 4,
-                'price' => $prices[4],
-                'qty' => 1,
-                'subtotal' => $prices[4] * 1,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
         ];
 
         DB::table('order_items')->insert($oi);

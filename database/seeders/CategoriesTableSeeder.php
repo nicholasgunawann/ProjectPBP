@@ -12,9 +12,9 @@ class CategoriesTableSeeder extends Seeder
     {
         $now = Carbon::now();
         DB::table('categories')->insert([
-            ['name' => 'Elektronik', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Fashion',    'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'Kebutuhan Rumah', 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Pakaian', 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Souvenir',    'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'Makanan', 'created_at' => $now, 'updated_at' => $now],
         ]);
     }
 }

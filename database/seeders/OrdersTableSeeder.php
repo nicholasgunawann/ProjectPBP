@@ -21,14 +21,6 @@ class OrdersTableSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-            [
-                'user_id' => 3, 
-                'total' => 0,
-                'status' => 'diproses',
-                'address_text' => 'Jl. Kenanga No. 5, Bandung',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
         ]);
     }
 }

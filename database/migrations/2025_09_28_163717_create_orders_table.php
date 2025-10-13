@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->decimal('total', 12, 2)->default(0);
-            $table->enum('status', ['diproses','dikirim','selesai','batal'])->default('diproses');
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete();
+            $table->decimal('total', 12, 2)
+                ->default(0);
+            $table->enum('status', ['diproses','dikirim','selesai','batal'])
+                ->default('diproses');
             $table->string('address_text');
             $table->timestamps();
         });
