@@ -20,7 +20,7 @@
 
         @if($products->count())
           <table class="w-full text-left">
-            <thead class="bg-gray-100">
+            <thead style="background-color: #4ade80; color: #ffffff;">
               <tr>
                 <th class="p-3">Nama</th>
                 <th class="p-3">Kategori</th>
@@ -85,7 +85,7 @@
 
         @if($orders->count())
           <table class="w-full text-left">
-            <thead class="bg-gray-100">
+            <thead style="background-color: #4ade80; color: #ffffff;">
               <tr>
                 <th class="p-3">Order</th>
                 <th class="p-3">User</th>
