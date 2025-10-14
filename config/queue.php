@@ -91,5 +91,3 @@ return [
     ],
 
 ];
-// ppppp ini iman
-// coba test komen di file queue

@@ -4,7 +4,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Authentication Defaults
+    | Authentication Defaults 
     |--------------------------------------------------------------------------
     |
     | This option controls the default authentication "guard" and password
@@ -113,3 +113,4 @@ return [
     'password_timeout' => 10800,
 
 ];
+// test komen
