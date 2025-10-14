@@ -1,146 +1,136 @@
+{{-- resources/views/admin/products/index.blade.php --}}
 <x-app-layout>
   <x-slot name="header">
-    <h2 class="font-semibold text-xl text-gray-800">
-      Dashboard Admin
-    </h2>
+    <h2 class="page-title">Daftar Produk</h2>
   </x-slot>
 
-  <div class="py-6">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-10">
+  <div class="product-index-scope">
+    <div class="wrap">
 
-      {{-- BAGIAN PRODUK --}}
-      <div class="bg-white shadow-sm sm:rounded-lg p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold">Daftar Produk</h3>
-          <a href="{{ route('admin.products.create') }}" 
-             class="px-3 py-2 bg-gray-800 text-white rounded hover:bg-gray-700">
-             + Tambah Produk
-          </a>
-        </div>
+      {{-- FILTER FORM --}}
+      <form method="GET" action="{{ route('admin.products.index') }}" class="filters">
+        <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Cari produk...">
+        <select name="category_id">
+          <option value="">Semua Kategori</option>
+          @php($__categories = (isset($categories) ? $categories : \App\Models\Category::orderBy('name')->get()))
+          @foreach($__categories as $c)
+            <option value="{{ $c->id }}" @selected(($categoryId ?? null)==$c->id)>{{ $c->name }}</option>
+          @endforeach
+        </select>
+        <button class="btn btn-primary" type="submit">Cari</button>
+        <a href="{{ route('admin.products.create') }}" class="btn btn-accent">+ Tambah</a>
+      </form>
 
-      @if (session('confirm_delete'))
-          @php $confirm = session('confirm_delete'); @endphp
-          <div class="mb-4 bg-yellow-50 border border-yellow-300 text-yellow-800 p-4 rounded-md">
-              <p class="mb-2 font-medium">{{ $confirm['message'] }}</p>
-              <form method="POST" action="{{ route('admin.products.destroy', $confirm['id']) }}">
+      {{-- GRID PRODUK --}}
+      @if(($products ?? collect())->count())
+      <div class="grid">
+        @foreach($products as $p)
+          <div class="card">
+            <div class="thumb-wrap">
+              @if($p->image)
+                <img src="{{ asset('storage/'.$p->image) }}" alt="{{ $p->name }}" class="thumb">
+              @else
+                <div class="thumb ph">No Image</div>
+              @endif
+
+              @if($p->is_active)
+                <span class="badge badge-green">Aktif</span>
+              @else
+                <span class="badge badge-gray">Nonaktif</span>
+              @endif
+            </div>
+
+            <div class="info">
+              <h3 class="title" title="{{ $p->name }}">{{ Str::limit($p->name, 48) }}</h3>
+
+              <div class="meta">
+                <div><span class="k">Harga</span><span class="v">Rp {{ number_format($p->price,0,',','.') }}</span></div>
+                <div><span class="k">Stok</span><span class="v">{{ $p->stock }}</span></div>
+                <div><span class="k">Kategori</span><span class="v">{{ $p->category->name ?? '—' }}</span></div>
+              </div>
+
+              <div class="actions">
+                <a class="btn btn-ghost" href="{{ route('products.show', $p->id) }}">Detail</a>
+                <a class="btn btn-primary" href="{{ route('admin.products.edit', $p->id) }}">Edit</a>
+                <form method="POST" action="{{ route('admin.products.destroy', $p->id) }}" onsubmit="return confirm('Hapus produk ini?')" style="display:inline;">
                   @csrf
                   @method('DELETE')
-                  <input type="hidden" name="confirm" value="yes">
-                  <button type="submit"
-                          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">
-                      Ya, Hapus
-                  </button>
-                  <a href="{{ route('admin.dashboard') }}" class="ml-2 text-gray-600 underline">
-                      Batal
-                  </a>
-              </form>
+                  <button class="btn btn-danger" type="submit">Hapus</button>
+                </form>
+              </div>
+            </div>
           </div>
-      @endif
-
-        @if($products->count())
-          <table class="w-full text-left">
-            <thead style="background-color: #4ade80; color: #ffffff;">
-              <tr>
-                <th class="p-3">Nama</th>
-                <th class="p-3">Kategori</th>
-                <th class="p-3">Harga</th>
-                <th class="p-3">Stok</th>
-                <th class="p-3">Aktif</th>
-                <th class="p-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($products as $p)
-                <tr class="border-t">
-                  <td class="p-3">{{ $p->name }}</td>
-                  <td class="p-3">{{ $p->category->name ?? '-' }}</td>
-                  <td class="p-3">Rp {{ number_format($p->price, 0, ',', '.') }}</td>
-                  <td class="p-3">{{ $p->stock }}</td>
-                  <td class="p-3">{{ $p->is_active ? 'Ya' : 'Tidak' }}</td>
-                  <td class="p-3">
-                    <div class="flex items-center gap-4">
-                      <a href="{{ route('admin.products.edit', $p) }}" 
-                        class="inline-block px-3 py-1 bg-gray-800 text-white rounded text-sm hover:bg-gray-700">
-                        Edit
-                      </a>
-
-                      <form action="{{ route('admin.products.destroy', $p) }}" method="POST" 
-                            onsubmit="return confirm('Yakin ingin hapus produk ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" 
-                                class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700">
-                          Hapus
-                        </button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              @endforeach
-            </tbody>
-          </table>
-        @else
-          <p class="text-gray-500">Belum ada produk.</p>
-        @endif
+        @endforeach
       </div>
-
-      {{-- BAGIAN PESANAN --}}
-      <div class="bg-white shadow-sm sm:rounded-lg p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold">Daftar Pesanan</h3>
-
-          {{-- Dropdown jumlah tampilan --}}
-          <form method="GET" class="flex items-center space-x-2">
-            <label for="per_page" class="text-sm text-gray-600">Tampilkan:</label>
-            <select name="per_page" id="per_page" class="border-gray-300 rounded" onchange="this.form.submit()">
-              @foreach([5,10,25,50,100] as $option)
-                <option value="{{ $option }}" {{ $perPage == $option ? 'selected' : '' }}>
-                  {{ $option }}
-                </option>
-              @endforeach
-            </select>
-          </form>
+      @else
+        <div class="empty">
+          <div class="empty-card">
+            <div class="emoji">🛍️</div>
+            <div class="txt">Belum ada produk yang cocok.</div>
+            <a href="{{ route('admin.products.create') }}" class="btn btn-accent">Tambah Produk</a>
+          </div>
         </div>
-
-        @if($orders->count())
-          <table class="w-full text-left">
-            <thead style="background-color: #4ade80; color: #ffffff;">
-              <tr>
-                <th class="p-3">Order</th>
-                <th class="p-3">User</th>
-                <th class="p-3">Status</th>
-                <th class="p-3">Total</th>
-                <th class="p-3">Tanggal</th>
-                <th class="p-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($orders as $o)
-                <tr class="border-t">
-                  <td class="p-3 font-semibold">#{{ $o->id }}</td>
-                  <td class="p-3">{{ $o->user->name ?? '-' }}</td>
-                  <td class="p-3">{{ strtoupper($o->status) }}</td>
-                  <td class="p-3">Rp {{ number_format($o->total, 0, ',', '.') }}</td>
-                  <td class="p-3">{{ $o->created_at->format('d M Y H:i') }}</td>
-                  <td class="p-3">
-                    <a href="{{ route('admin.orders.show', $o) }}" class="px-3 py-1 bg-gray-800 text-white rounded text-sm hover:bg-gray-700">
-                      Detail
-                    </a>
-                  </td>
-                </tr>
-              @endforeach
-            </tbody>
-          </table>
-
-          {{-- Pagination links --}}
-          <div class="mt-4">
-            {{ $orders->links() }}
-          </div>
-
-        @else
-          <p class="text-gray-500">Belum ada pesanan.</p>
-        @endif
-      </div>
+      @endif
     </div>
   </div>
+
+  <style>
+    .page-title{font:600 20px/1.3 ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;margin:0;color:#1f2937}
+    .product-index-scope{ --yellow-100:#fef3a8; --yellow-200:#f7e96b; --yellow-300:#f3db37;
+                          --green-100:#d7f5da; --green-200:#bff0c2; --green-300:#9ae2a0;
+                          --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --soft:#f9fafb;
+                          --danger:#dc2626; --gray:#6b7280; --shadow:0 10px 30px rgba(16,24,40,.08);}
+    .product-index-scope .wrap{padding:24px}
+
+    /* FILTERS */
+    .product-index-scope .filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+    .product-index-scope .filters input,
+    .product-index-scope .filters select{
+      padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:14px;outline:none;
+      transition:.15s border,.15s box-shadow;
+    }
+    .product-index-scope .filters input:focus,
+    .product-index-scope .filters select:focus{border-color:var(--yellow-300);box-shadow:0 0 0 4px rgba(247,233,107,.35)}
+
+    .product-index-scope .btn{border-radius:12px;padding:10px 14px;font-weight:700;border:1px solid transparent;cursor:pointer;text-decoration:none;display:inline-block}
+    .product-index-scope .btn-ghost{background:#fff;border-color:var(--border);color:#111827}
+    .product-index-scope .btn-ghost:hover{background:#f3f4f6}
+    .product-index-scope .btn-primary{background:linear-gradient(90deg,var(--yellow-300),var(--green-200));color:#052e16}
+    .product-index-scope .btn-primary:hover{background:linear-gradient(90deg,#ffe066,#bff0c2)}
+    .product-index-scope .btn-accent{background:linear-gradient(90deg,#fff3a0,#c8f3c8);color:#14532d;border:1px solid #e5e7eb}
+    .product-index-scope .btn-accent:hover{background:linear-gradient(90deg,#ffe879,#bff0c2)}
+    .product-index-scope .btn-danger{background:#fee2e2;color:#7f1d1d;border:1px solid #fecaca}
+    .product-index-scope .btn-danger:hover{background:#fecaca}
+
+    /* GRID */
+    .product-index-scope .grid{display:grid;gap:16px;grid-template-columns:repeat(1,minmax(0,1fr))}
+    @media(min-width:640px){.product-index-scope .grid{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:1024px){.product-index-scope .grid{grid-template-columns:repeat(3,1fr)}}
+    @media(min-width:1280px){.product-index-scope .grid{grid-template-columns:repeat(4,1fr)}}
+
+    .product-index-scope .card{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .product-index-scope .thumb-wrap{position:relative;background:linear-gradient(135deg,var(--yellow-100),var(--green-100))}
+    .product-index-scope .thumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+    .product-index-scope .thumb.ph{width:100%;aspect-ratio:4/3;display:grid;place-items:center;color:#64748b;background:#fffbe6;font-size:13px}
+
+    .product-index-scope .badge{position:absolute;left:10px;top:10px;padding:6px 8px;border-radius:999px;font-size:12px;font-weight:700}
+    .product-index-scope .badge-green{background:#dcfce7;color:#065f46;border:1px solid #bbf7d0}
+    .product-index-scope .badge-gray{background:#e5e7eb;color:#374151;border:1px solid #d1d5db}
+
+    .product-index-scope .info{padding:12px;display:flex;flex-direction:column;gap:10px}
+    .product-index-scope .title{margin:0;font:700 16px/1.3 ui-sans-serif,system-ui;color:#0f172a}
+    .product-index-scope .meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .product-index-scope .meta .k{display:block;font-size:12px;color:var(--gray)}
+    .product-index-scope .meta .v{display:block;font-size:14px;color:#111827;font-weight:600}
+
+    .product-index-scope .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    
+
+
+    /* EMPTY STATE */
+    .product-index-scope .empty{display:grid;place-items:center;padding:40px 0}
+    .product-index-scope .empty-card{border:1px solid var(--border);border-radius:16px;background:#fff;width:100%;max-width:520px;padding:24px;text-align:center;box-shadow:var(--shadow)}
+    .product-index-scope .empty .emoji{font-size:28px}
+    .product-index-scope .empty .txt{margin:8px 0 16px;color:#334155}
+  </style>
 </x-app-layout>
