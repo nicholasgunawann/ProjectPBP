@@ -53,7 +53,7 @@
         .bg-base {
           position: absolute;
           inset: 0;
-          background: linear-gradient(135deg, #13c81c, #2ac034, #05ff11);
+          background: linear-gradient(135deg, #d4f1e8, #c8f0e0, #b8e8d4);
           background-size: 200% 200%;
           animation: gradientFlow 10s ease infinite;
           z-index: 1;

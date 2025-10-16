@@ -37,7 +37,7 @@
                                 {{ __('Dashboard') }}
                             </x-nav-link>
 
-                            <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                            <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*') || request()->routeIs('admin.orders.*')">
                                 {{ __('Manage') }}
                             </x-nav-link>
                         @endif
@@ -125,8 +125,12 @@
                 @endif
 
                 @if(auth()->user()->role === 'admin')
-                    <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->is('admin/*')">
-                        {{ __('Admin') }}
+                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
+                    
+                    <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*') || request()->routeIs('admin.orders.*')">
+                        {{ __('Manage') }}
                     </x-responsive-nav-link>
                 @endif
             @endauth

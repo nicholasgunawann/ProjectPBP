@@ -79,10 +79,15 @@ class OrderController extends Controller
      */
     public function myOrders()
     {
-        $orders = Order::with('items.product')
-            ->where('user_id', Auth::id())
-            ->orderByDesc('id')
-            ->paginate(10);
+        $query = Order::with('items.product')
+            ->where('user_id', Auth::id());
+
+        // Filter berdasarkan status jika ada
+        if (request('status')) {
+            $query->where('status', request('status'));
+        }
+
+        $orders = $query->orderByDesc('id')->paginate(10);
 
         return view('orders.index', compact('orders'));
     }
