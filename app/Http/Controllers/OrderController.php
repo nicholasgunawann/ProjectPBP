@@ -33,6 +33,17 @@ class OrderController extends Controller
             return back()->with('error','Keranjang kosong.');
         }
 
+        // Validasi produk & stok
+        foreach ($cart->items as $ci) {
+            if (!$ci->product->is_active) {
+                return back()->with('error', "Produk {$ci->product->name} sudah tidak tersedia. Silahkan hapus dari keranjang.");
+            }
+            
+            if ($ci->product->stock < $ci->qty) {
+                return back()->with('error', "Stok {$ci->product->name} tidak cukup! Tersedia: {$ci->product->stock} pcs, Diminta: {$ci->qty} pcs.");
+            }
+        }
+
         DB::transaction(function() use ($cart, $userId, $request) {
             $order = Order::create([
                 'user_id' => $userId,
@@ -47,10 +58,7 @@ class OrderController extends Controller
                 $qty   = $ci->qty;
                 $sub   = $price * $qty;
 
-                // (opsional) check stok + kurangi stok
-                if ($ci->product->stock < $qty) {
-                    throw new \RuntimeException("Stok tidak cukup untuk {$ci->product->name}");
-                }
+                // Kurangi stok
                 $ci->product->decrement('stock', $qty);
 
                 OrderItem::create([

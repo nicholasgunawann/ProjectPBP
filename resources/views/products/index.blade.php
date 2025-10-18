@@ -9,7 +9,7 @@
         <div class="max-w-6xl mx-auto px-4">
             
             {{-- FORM PENCARIAN --}}
-            <form method="GET" action="{{ route('products.index') }}" class="search-filters">
+            <form method="GET" action="{{ route('products.index') }}" class="search-filters" id="searchForm">
                 <div class="filter-group">
                     <div class="input-with-icon">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,6 +18,7 @@
                         <input 
                             type="text" 
                             name="q" 
+                            id="searchInput"
                             value="{{ $q ?? '' }}" 
                             placeholder="Cari produk..." 
                             class="search-input"
@@ -28,7 +29,7 @@
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                         </svg>
-                        <select name="category_id" class="search-input">
+                        <select name="category_id" id="categorySelect" class="search-input">
                             <option value="">Semua Kategori</option>
                             @foreach(($categories ?? []) as $c)
                                 <option value="{{ $c->id }}" @selected(($categoryId ?? null)==$c->id)>
@@ -39,7 +40,7 @@
                     </div>
                 </div>
 
-                <div class="filter-actions">
+                <div class="filter-actions" style="display:none;">
                     <button type="submit" class="btn-search">
                         <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -50,7 +51,7 @@
             </form>
 
             {{-- GRID PRODUK --}}
-            <div class="product-grid">
+            <div class="product-grid" id="productGrid">
                 @forelse ($products as $p)
                     <div class="product-card">
                         {{-- Thumbnail --}}
@@ -90,20 +91,32 @@
                             {{-- Actions --}}
                             @auth
                                 @if(auth()->user()->role !== 'admin')
-                                    <form method="POST" action="{{ route('cart.items.store') }}" class="product-actions">
-                                        @csrf
-                                        <input type="hidden" name="product_id" value="{{ $p->id }}">
-                                        <input 
-                                            type="number" 
-                                            name="qty" 
-                                            value="1" 
-                                            min="1" 
-                                            class="qty-input"
-                                        >
-                                        <button type="submit" class="btn-add-cart">
-                                            Tambah
-                                        </button>
-                                    </form>
+                                    @if($p->is_active && $p->stock > 0)
+                                        <form method="POST" action="{{ route('cart.items.store') }}" class="product-actions add-to-cart-form" data-product-id="{{ $p->id }}" data-max-stock="{{ $p->stock }}">
+                                            @csrf
+                                            <input type="hidden" name="product_id" value="{{ $p->id }}">
+                                            <input 
+                                                type="number" 
+                                                name="qty" 
+                                                value="1" 
+                                                min="1" 
+                                                class="qty-input"
+                                            >
+                                            <button type="submit" class="btn-add-cart">
+                                                Tambah
+                                            </button>
+                                        </form>
+                                    @else
+                                        <div class="product-actions">
+                                            <button disabled class="btn-disabled">
+                                                @if(!$p->is_active)
+                                                    Tidak Tersedia
+                                                @else
+                                                    Stok Habis
+                                                @endif
+                                            </button>
+                                        </div>
+                                    @endif
                                 @else
                                     <div class="product-actions">
                                         <a href="{{ route('admin.products.edit', $p->id) }}" class="btn-edit">
@@ -174,7 +187,6 @@
         @media(min-width:768px) {
             .filter-group {
                 flex-direction: row;
-                max-width: 600px;
             }
         }
         
@@ -211,6 +223,16 @@
             font-size: 14px;
             outline: none;
             transition: 0.2s all;
+        }
+        
+        /* Select dropdown dengan panah */
+        select.search-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
         }
         
         .search-input:focus {
@@ -397,6 +419,17 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,.2);
         }
+        .btn-disabled {
+            flex: 1;
+            background: #e5e7eb;
+            color: #9ca3af;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            cursor: not-allowed;
+        }
         .btn-edit {
             display: inline-flex;
             align-items: center;
@@ -448,4 +481,97 @@
             font-size: 14px;
         }
     </style>
+
+    <script>
+        // Live Search & Filter
+        let searchTimeout;
+        const searchInput = document.getElementById('searchInput');
+        const categorySelect = document.getElementById('categorySelect');
+        const productGrid = document.getElementById('productGrid');
+        
+        function loadProducts() {
+            const q = searchInput.value;
+            const category_id = categorySelect.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('q', q);
+            url.searchParams.set('category_id', category_id);
+            
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newGrid = doc.getElementById('productGrid');
+                productGrid.innerHTML = newGrid.innerHTML;
+                
+                attachAddToCartListeners();
+            });
+        }
+        
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(loadProducts, 300);
+        });
+        
+        // filter kategori instan
+        categorySelect.addEventListener('change', loadProducts);
+        
+        function attachAddToCartListeners() {
+            const forms = document.querySelectorAll('.add-to-cart-form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const qtyInput = form.querySelector('input[name="qty"]');
+                    const qtyValue = parseInt(qtyInput.value);
+                    const maxStock = parseInt(form.dataset.maxStock);
+                    const button = form.querySelector('.btn-add-cart');
+                    
+                    // Validasi stok
+                    if (qtyValue < 1) {
+                        showToast('Jumlah minimal adalah 1', 'error');
+                        return;
+                    }
+                    
+                    if (qtyValue > maxStock) {
+                        showToast('Stok tidak mencukupi! Tersedia hanya ' + maxStock + ' pcs.', 'error');
+                        return;
+                    }
+                    
+                    const formData = new FormData(form);
+                    button.disabled = true;
+                    
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(data.message, 'success');
+                            form.querySelector('input[name="qty"]').value = 1;
+                        } else {
+                            showToast(data.message || 'Terjadi kesalahan', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Terjadi kesalahan', 'error');
+                    })
+                    .finally(() => {
+                        button.disabled = false;
+                    });
+                });
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', attachAddToCartListeners);
+    </script>
 </x-app-layout>

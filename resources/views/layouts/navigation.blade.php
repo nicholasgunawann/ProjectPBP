@@ -37,7 +37,7 @@
             @endif
 
             @if(auth()->user()->role === 'admin')
-              <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*') || request()->routeIs('admin.orders.*')" class="tab-chip">
+              <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.categories.*')" class="tab-chip">
                 {{ __('Manage') }}
               </x-nav-link>
             @endif
@@ -142,8 +142,14 @@
           <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
             {{ __('Dashboard') }}
           </x-responsive-nav-link>
-          <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*') || request()->routeIs('admin.orders.*')">
-            {{ __('Manage') }}
+          <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+            {{ __('Produk') }}
+          </x-responsive-nav-link>
+          <x-responsive-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
+            {{ __('Pesanan') }}
+          </x-responsive-nav-link>
+          <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+            {{ __('Kategori') }}
           </x-responsive-nav-link>
         @endif
       @endauth

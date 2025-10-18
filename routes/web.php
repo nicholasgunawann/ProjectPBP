@@ -8,6 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Admin\ProductAdminController;
 use App\Http\Controllers\Admin\OrderAdminController;
+use App\Http\Controllers\Admin\CategoryAdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +20,6 @@ Route::get('/', fn() => redirect()->route('products.index'));
 
 // Produk (public)
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
 // Keranjang (user)
 Route::middleware('auth')->group(function () {
@@ -54,11 +54,16 @@ Route::prefix('admin')
         Route::get('/orders', [OrderAdminController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderAdminController::class, 'show'])->name('orders.show');
         Route::patch('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.updateStatus');
+
+        // Manajemen kategori
+        Route::get('/categories', [CategoryAdminController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [CategoryAdminController::class, 'store'])->name('categories.store');
+        Route::put('/categories/{category}', [CategoryAdminController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{category}', [CategoryAdminController::class, 'destroy'])->name('categories.destroy');
     });
 
-// Route bawaan auth/profile dari Laravel Breeze (hanya untuk user biasa)
+// Auth routes (user biasa) -> dari Laravel Breeze
 Route::get('/dashboard', function () {
-    // Redirect admin ke dashboard admin
     if (auth()->user()->role === 'admin') {
         return redirect()->route('admin.dashboard');
     }

@@ -11,7 +11,6 @@
           <x-auth-session-status class="mb-4" :status="session('status')" />
 
           <h1 class="title">Login</h1>
-          <p class="subtitle">Silakan login untuk melanjutkan.</p>
 
           <form method="POST" action="{{ route('login') }}" class="form">
             @csrf
@@ -76,7 +75,7 @@
     .card-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--yellow-100),var(--green-100));opacity:.35;filter:blur(60px)}
     .card-body{position:relative;padding:24px}
 
-    .title{margin:0 0 4px;font:800 22px/1.3 ui-sans-serif,system-ui;color:var(--ink)}
+    .title{margin:0 0 20px;font:800 22px/1.3 ui-sans-serif,system-ui;color:var(--ink)}
     .subtitle{margin:0 0 16px;color:#334155;font-size:14px}
 
     .form{display:flex;flex-direction:column;gap:12px}

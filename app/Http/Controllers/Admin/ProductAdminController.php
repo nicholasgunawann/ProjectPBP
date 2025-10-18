@@ -9,33 +9,16 @@ use Illuminate\Http\Request;
 
 class ProductAdminController extends Controller
 {
-    public function __construct()
-    {
-        // pastikan role admin
-        $this->middleware(function ($request, $next) {
-            if (!auth()->check() || auth()->user()->role !== 'admin') {
-                abort(403, 'Admin only');
-            }
-            return $next($request);
-        });
-    }
-
     public function index(Request $request)
     {
         $q = $request->query('q');
-        $perPage = $request->query('per_page', 5); // default tampil 5
 
-        $products = \App\Models\Product::with('category')
+        $products = Product::with('category')
             ->when($q, fn($qq) => $qq->where('name', 'like', "%{$q}%"))
             ->orderByDesc('id')
             ->get();
 
-        $orders = \App\Models\Order::with('user')
-            ->orderByDesc('id')
-            ->paginate($perPage)
-            ->appends(['per_page' => $perPage]);
-
-        return view('admin.products.index', compact('products', 'orders', 'q', 'perPage'));
+        return view('admin.products.index', compact('products', 'q'));
     }
 
     public function create()
@@ -57,7 +40,7 @@ class ProductAdminController extends Controller
 
         $validated['is_active'] = (bool)($validated['is_active'] ?? true);
 
-        // Handle image upload
+        // Upload gambar
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
@@ -86,16 +69,15 @@ class ProductAdminController extends Controller
 
         $validated['is_active'] = (bool)($validated['is_active'] ?? false);
 
-        // Handle checkbox hapus gambar
+        // Hapus gambar
         if ($request->has('remove_image') && $request->remove_image == '1') {
             if ($product->image && \Storage::disk('public')->exists($product->image)) {
                 \Storage::disk('public')->delete($product->image);
             }
             $validated['image'] = null;
         }
-        // Handle upload gambar
+        // Upload gambar baru
         elseif ($request->hasFile('image')) {
-            // Delete gambar lama (jika ada)
             if ($product->image && \Storage::disk('public')->exists($product->image)) {
                 \Storage::disk('public')->delete($product->image);
             }
@@ -111,20 +93,19 @@ class ProductAdminController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        // Cek apakah produk stok > 0 atau masih ada di keranjang
         $hasStock = $product->stock > 0;
         $inCart = $product->cartItems()->exists();
 
-        // Jika stok > 0 ATAU ada di keranjang, minta konfirmasi
+        // Konfirmasi jika stok > 0 atau ada di cart
         if ($hasStock || $inCart) {
-            // Jika admin sudah konfirmasi, hapus
+            // Sudah konfirmasi? Hapus
             if ($request->has('confirm') && $request->confirm == 'yes') {
                 $product->delete(); 
                 return redirect()->route('admin.products.index')
                                 ->with('success', 'Produk berhasil dihapus.');
             }
 
-            // Jika belum konfirmasi, minta konfirmasi
+            // Belum? Minta konfirmasi
             $message = '';
             if ($hasStock && $inCart) {
                 $message = "Produk ini masih memiliki stok ({$product->stock}) dan ada di keranjang pelanggan. Anda yakin akan menghapus?";
@@ -141,7 +122,7 @@ class ProductAdminController extends Controller
             ]);
         }
 
-        // Jika stok = 0 dan tidak ada di keranjang, langsung hapus
+        // Stok habis & ga di cart? Langsung hapus
         $product->delete();
         return redirect()->route('admin.products.index')
                         ->with('success', 'Produk berhasil dihapus.');

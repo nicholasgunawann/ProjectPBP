@@ -39,12 +39,12 @@
                 @php($grand=0)
                 @foreach($cart->items as $item)
                   @php($sub = $item->product->price * $item->qty) @php($grand += $sub)
-                  <tr class="border-t">
+                  <tr class="border-t cart-row" data-item-id="{{ $item->id }}">
                     <td class="p-3 font-semibold">{{ $item->product->name }}</td>
                     <td class="p-3">Rp {{ number_format($item->product->price,0,',','.') }}</td>
                     <td class="p-3">
                       
-                      <form method="POST" action="{{ route('cart.items.update',$item) }}" class="flex gap-2">
+                      <form method="POST" action="{{ route('cart.items.update',$item) }}" class="flex gap-2 update-qty-form" data-item-id="{{ $item->id }}" data-max-stock="{{ $item->product->stock }}">
                         @csrf @method('PATCH')
                         
                         {{-- Gunakan style .form-input --}}
@@ -53,8 +53,9 @@
                             name="qty" 
                             value="{{ $item->qty }}" 
                             min="1" 
-                            class="form-input" 
+                            class="form-input qty-input-field" 
                             style="width: 75px; text-align: center; padding: 7px 10px;"
+                            data-item-id="{{ $item->id }}"
                         >
                         
                         {{-- Gunakan style .btn-edit dari index.blade.php --}}
@@ -62,10 +63,10 @@
                       
                       </form>
                     </td>
-                    <td class="p-3 font-semibold">Rp {{ number_format($sub,0,',','.') }}</td>
+                    <td class="p-3 font-semibold subtotal-cell">Rp {{ number_format($sub,0,',','.') }}</td>
                     <td class="p-3 text-right">
                       
-                      <form method="POST" action="{{ route('cart.items.destroy',$item) }}">
+                      <form method="POST" action="{{ route('cart.items.destroy',$item) }}" class="delete-item-form" data-item-id="{{ $item->id }}">
                         @csrf @method('DELETE')
                         
                         {{-- Gunakan style .btn-danger-sm baru --}}
@@ -79,7 +80,7 @@
               <tfoot class="border-t-2 border-gray-200">
                 <tr>
                   <td colspan="3" class="p-3 text-right font-semibold text-gray-700">Total</td>
-                  <td class="p-3 font-bold text-lg text-gray-900">Rp {{ number_format($grand,0,',','.') }}</td>
+                  <td class="p-3 font-bold text-lg text-gray-900 grand-total-cell">Rp {{ number_format($grand,0,',','.') }}</td>
                   <td></td>
                 </tr>
               </tfoot>
@@ -90,11 +91,11 @@
           <div class="mt-6 flex flex-col md:flex-row justify-between items-center gap-4">
             
             {{-- Tombol Kosongkan (kiri) --}}
-            <form method="POST" action="{{ route('cart.clear') }}">
+            <form method="POST" action="{{ route('cart.clear') }}" id="clear-cart-form">
               @csrf @method('DELETE')
               
               {{-- Gunakan style .btn-danger baru --}}
-              <button type="submit" class="btn-danger">Kosongkan Keranjang</button>
+              <button type="submit" class="btn-danger" id="clear-cart-btn">Kosongkan Keranjang</button>
             
             </form>
 
@@ -441,5 +442,180 @@
       }
 
   </style>
+
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const updateForms = document.querySelectorAll('.update-qty-form');
+          
+          updateForms.forEach(form => {
+              form.addEventListener('submit', function(e) {
+                  e.preventDefault();
+                  
+                  const formData = new FormData(form);
+                  const button = form.querySelector('button[type="submit"]');
+                  const itemId = form.dataset.itemId;
+                  const maxStock = parseInt(form.dataset.maxStock);
+                  const qtyInput = form.querySelector('input[name="qty"]');
+                  const qtyValue = parseInt(qtyInput.value);
+                  const row = document.querySelector(`.cart-row[data-item-id="${itemId}"]`);
+                  
+                  // Validasi stok
+                  if (qtyValue < 1) {
+                      showToast('Jumlah minimal adalah 1', 'error');
+                      return;
+                  }
+                  
+                  if (qtyValue > maxStock) {
+                      showToast('Stok tidak mencukupi! Tersedia hanya ' + maxStock + ' pcs.', 'error');
+                      return;
+                  }
+                  
+                  button.disabled = true;
+                  
+                  fetch(form.action, {
+                      method: 'POST',
+                      headers: {
+                          'X-Requested-With': 'XMLHttpRequest',
+                          'Accept': 'application/json',
+                          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                      },
+                      body: formData
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          const subtotalCell = row.querySelector('.subtotal-cell');
+                          subtotalCell.textContent = 'Rp ' + data.subtotal.toLocaleString('id-ID');
+                          
+                          const grandTotalCell = document.querySelector('.grand-total-cell');
+                          grandTotalCell.textContent = 'Rp ' + data.grand_total.toLocaleString('id-ID');
+                          
+                          showToast(data.message, 'success');
+                      } else {
+                          showToast(data.message || 'Terjadi kesalahan', 'error');
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      showToast('Terjadi kesalahan', 'error');
+                  })
+                  .finally(() => {
+                      button.disabled = false;
+                  });
+              });
+          });
+          
+          const deleteForms = document.querySelectorAll('.delete-item-form');
+          
+          deleteForms.forEach(form => {
+              form.addEventListener('submit', function(e) {
+                  e.preventDefault();
+                  
+                  const formData = new FormData(form);
+                  const button = form.querySelector('button[type="submit"]');
+                  const itemId = form.dataset.itemId;
+                  const row = document.querySelector(`.cart-row[data-item-id="${itemId}"]`);
+                  
+                  button.disabled = true;
+                  
+                  fetch(form.action, {
+                      method: 'POST',
+                      headers: {
+                          'X-Requested-With': 'XMLHttpRequest',
+                          'Accept': 'application/json',
+                          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                      },
+                      body: formData
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          row.style.transition = 'opacity 0.3s, transform 0.3s';
+                          row.style.opacity = '0';
+                          row.style.transform = 'translateX(-20px)';
+                          
+                          setTimeout(() => {
+                              row.remove();
+                              
+                              if (!data.is_empty) {
+                                  const grandTotalCell = document.querySelector('.grand-total-cell');
+                                  grandTotalCell.textContent = 'Rp ' + data.grand_total.toLocaleString('id-ID');
+                              } else {
+                                  const cartCard = document.querySelector('.cart-card');
+                                  cartCard.innerHTML = `
+                                      <div class="empty-state" style="padding-top: 20px;">
+                                          <div class="empty-card">
+                                              <div class="empty-icon">🛒</div>
+                                              <div class="empty-text">Keranjang kamu masih kosong.</div>
+                                              <a href="{{ route('products.index') }}" class="btn-primary" style="margin-top: 16px; text-decoration: none;">
+                                                  Mulai Belanja
+                                              </a>
+                                          </div>
+                                      </div>
+                                  `;
+                              }
+                          }, 300);
+                          
+                          showToast(data.message, 'success');
+                      } else {
+                          showToast(data.message || 'Terjadi kesalahan', 'error');
+                          button.disabled = false;
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      showToast('Terjadi kesalahan', 'error');
+                      button.disabled = false;
+                  });
+              });
+          });
+      });
+
+      document.getElementById('clear-cart-form').addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const form = this;
+          const button = document.getElementById('clear-cart-btn');
+          
+          button.disabled = true;
+          
+          fetch(form.action, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                  'X-HTTP-Method-Override': 'DELETE'
+              }
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  const cartCard = document.querySelector('.cart-card');
+                  cartCard.innerHTML = `
+                      <div class="empty-state" style="padding-top: 20px;">
+                          <div class="empty-card">
+                              <div class="empty-icon">🛒</div>
+                              <div class="empty-text">Keranjang kamu masih kosong.</div>
+                              <a href="{{ route('products.index') }}" class="btn-primary" style="margin-top: 16px; text-decoration: none;">
+                                  Mulai Belanja
+                              </a>
+                          </div>
+                      </div>
+                  `;
+                  
+                  showToast(data.message, 'success');
+              } else {
+                  showToast(data.message || 'Terjadi kesalahan', 'error');
+                  button.disabled = false;
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              showToast('Terjadi kesalahan', 'error');
+              button.disabled = false;
+          });
+      });
+  </script>
 
 </x-app-layout>

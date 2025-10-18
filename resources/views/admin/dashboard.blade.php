@@ -37,7 +37,7 @@
 
             <div class="stat stat-red">
               <div class="stat-k">Pesanan Dibatalkan</div>
-              <div class="stat-v">{{ \App\Models\Order::where('status', 'batal')->count() }}</div>
+              <div class="stat-v">{{ \App\Models\Order::whereIn('status', ['batal', 'dibatalkan'])->count() }}</div>
             </div>
 
             <div class="stat stat-ink">

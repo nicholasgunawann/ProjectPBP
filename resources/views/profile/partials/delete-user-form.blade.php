@@ -49,7 +49,6 @@
       document.getElementById('deleteAccountForm').submit();
     }
 
-    // Tutup modal ketika klik di luar modal box
     document.getElementById('deleteModal').addEventListener('click', function(e) {
       if (e.target === this) {
         hideDeleteModal();

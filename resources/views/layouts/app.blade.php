@@ -247,5 +247,62 @@
           height: 16px;
         }
       </style>
+
+      <script>
+        function showToast(message, type = 'success') {
+          const container = document.getElementById('toast-container');
+          if (!container) {
+            const newContainer = document.createElement('div');
+            newContainer.id = 'toast-container';
+            newContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+            document.body.appendChild(newContainer);
+          }
+          
+          const toast = document.createElement('div');
+          toast.className = `toast toast-${type}`;
+          toast.style.cssText = 'margin-bottom: 12px; animation: slideInRight 0.3s ease-out;';
+          
+          const icon = type === 'success' 
+            ? '<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>'
+            : '<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>';
+          
+          toast.innerHTML = `
+            <div class="toast-content">
+              ${icon}
+              <span class="toast-message">${message}</span>
+              <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          `;
+          
+          const toastContainer = document.getElementById('toast-container');
+          toastContainer.appendChild(toast);
+          
+          setTimeout(() => {
+            toast.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => toast.remove(), 300);
+          }, 3000);
+        }
+
+        // Add animation keyframes
+        if (!document.getElementById('toast-animations')) {
+          const style = document.createElement('style');
+          style.id = 'toast-animations';
+          style.textContent = `
+            @keyframes slideInRight {
+              from { transform: translateX(400px); opacity: 0; }
+              to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+              from { transform: translateX(0); opacity: 1; }
+              to { transform: translateX(400px); opacity: 0; }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+      </script>
   </body>
 </html>

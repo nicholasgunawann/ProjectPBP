@@ -20,13 +20,17 @@
             <div>
               <span class="k">Status</span>
               {{-- badge tema, tanpa ubah logika status --}}
-              <span class="badge
+              <span class="badge status-badge
                 @if(strtolower($order->status)=='diproses') st-diproses
                 @elseif(strtolower($order->status)=='dikirim') st-dikirim
                 @elseif(strtolower($order->status)=='selesai') st-selesai
                 @elseif(strtolower($order->status)=='batal') st-batal
                 @else st-pending @endif">
-                {{ strtoupper($order->status) }}
+                @if(strtolower($order->status)=='batal')
+                  DIBATALKAN
+                @else
+                  {{ strtoupper($order->status) }}
+                @endif
               </span>
             </div>
           </div>
@@ -66,16 +70,16 @@
 
           <h3 class="title mb-2">Ubah Status Pesanan</h3>
           {{-- PAKAI ROUTE & METHOD AWAL: updateStatus + PATCH --}}
-          <form method="POST" action="{{ route('admin.orders.updateStatus', $order) }}">
+          <form method="POST" action="{{ route('admin.orders.updateStatus', $order) }}" id="updateStatusForm">
             @csrf
             @method('PATCH')
-            <select name="status" class="sel" required>
+            <select name="status" class="sel" required id="statusSelect">
               <option value="diproses" @selected($order->status == 'diproses')>Diproses</option>
               <option value="dikirim"  @selected($order->status == 'dikirim')>Dikirim</option>
               <option value="selesai"  @selected($order->status == 'selesai')>Selesai</option>
-              <option value="batal"    @selected($order->status == 'batal')>Batal</option>
+              <option value="batal" @selected($order->status == 'batal')>Dibatalkan</option>
             </select>
-            <button class="btn btn-primary">Simpan</button>
+            <button class="btn btn-primary" type="submit">Simpan</button>
           </form>
 
           <div class="mt-6">
@@ -170,4 +174,44 @@
     .st-batal   {background:linear-gradient(135deg,#fee2e2,#fecaca);color:#7f1d1d;border-color:#fecaca}
     .st-pending {background:#fff7ed;color:#7c2d12;border-color:#fed7aa}
   </style>
+  
+  <script>
+    document.getElementById('updateStatusForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const button = form.querySelector('button[type="submit"]');
+      const select = document.getElementById('statusSelect');
+      const badge = document.querySelector('.status-badge');
+      
+      button.disabled = true;
+      
+      fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: new FormData(form)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const status = select.value;
+          badge.className = 'badge status-badge st-' + (status === 'batal' ? 'batal' : status);
+          badge.textContent = status === 'batal' ? 'DIBATALKAN' : status.toUpperCase();
+          showToast(data.message, 'success');
+        } else {
+          showToast(data.message || 'Terjadi kesalahan', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showToast('Terjadi kesalahan', 'error');
+      })
+      .finally(() => {
+        button.disabled = false;
+      });
+    });
+  </script>
 </x-app-layout>

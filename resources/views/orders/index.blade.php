@@ -33,11 +33,11 @@
         <div class="order-card">
           <div class="order-header">
             <div class="order-id">{{ $o->order_number }}</div>
-            <span class="status-badge status-{{ $o->status }}">
+            <span class="status-badge status-{{ $o->status == 'batal' ? 'dibatalkan' : $o->status }}">
               @if($o->status == 'diproses') ⏳ Diproses
               @elseif($o->status == 'dikirim') 🚚 Dikirim
               @elseif($o->status == 'selesai') ✅ Selesai
-              @elseif($o->status == 'dibatalkan') ❌ Dibatalkan
+              @elseif($o->status == 'dibatalkan' || $o->status == 'batal') ❌ Dibatalkan
               @else {{ $o->status }}
               @endif
             </span>
@@ -153,7 +153,8 @@
       color: #065f46;
       border: 1px solid #a7f3d0;
     }
-    .status-dibatalkan {
+    .status-dibatalkan,
+    .status-batal {
       background: #fee2e2;
       color: #991b1b;
       border: 1px solid #fecaca;
