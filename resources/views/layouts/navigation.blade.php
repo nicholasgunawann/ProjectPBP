@@ -1,5 +1,5 @@
 {{-- resources/views/layouts/navigation.blade.php --}}
-<nav x-data="{ open: false }" class="bg-white/90 border-b border-gray-200 backdrop-blur-md shadow-sm">
+<nav x-data="{ open: false }" class="bg-white/90 border-b border-gray-200 backdrop-blur-md shadow-sm relative z-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between h-16">
       <div class="flex items-center">
@@ -10,11 +10,23 @@
 
         <!-- Tabs -->
         <div class="hidden sm:flex items-center ml-20">
-          <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="tab-chip">
-            {{ __('Produk') }}
-          </x-nav-link>
-
           @auth
+            @if(auth()->user()->role === 'user')
+              <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="tab-chip">
+                {{ __('Dashboard') }}
+              </x-nav-link>
+            @endif
+
+            @if(auth()->user()->role === 'admin')
+              <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="tab-chip">
+                {{ __('Dashboard') }}
+              </x-nav-link>
+            @endif
+
+            <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')" class="tab-chip">
+              {{ __('Produk') }}
+            </x-nav-link>
+
             @if(auth()->user()->role === 'user')
               <x-nav-link :href="route('cart.show')" :active="request()->routeIs('cart.*')" class="tab-chip">
                 {{ __('Keranjang') }}
@@ -25,9 +37,6 @@
             @endif
 
             @if(auth()->user()->role === 'admin')
-              <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="tab-chip">
-                {{ __('Dashboard') }}
-              </x-nav-link>
               <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*') || request()->routeIs('admin.orders.*')" class="tab-chip">
                 {{ __('Manage') }}
               </x-nav-link>
@@ -57,23 +66,21 @@
 
             {{-- Dropdown content: Profile + Logout (COMPACT) --}}
             <x-slot name="content">
-              <div class="dropdown-panel">
-                <a class="menu-item" href="{{ route('profile.edit') }}">
-                  <svg class="mi" viewBox="0 0 24 24" fill="none"><path d="M12 14a5 5 0 100-10 5 5 0 000 10zM20 21a8 8 0 10-16 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span>Profile</span>
+              <a class="menu-item" href="{{ route('profile.edit') }}">
+                <svg class="mi" viewBox="0 0 24 24" fill="none"><path d="M12 14a5 5 0 100-10 5 5 0 000 10zM20 21a8 8 0 10-16 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Profile</span>
+              </a>
+
+              <div class="menu-divider"></div>
+
+              <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <a class="menu-item danger" href="{{ route('logout') }}"
+                   onclick="event.preventDefault(); this.closest('form').submit();">
+                  <svg class="mi" viewBox="0 0 24 24" fill="none"><path d="M15 12H3m12 0l-4-4m4 4l-4 4M21 3v18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span>Log Out</span>
                 </a>
-
-                <div class="menu-divider"></div>
-
-                <form method="POST" action="{{ route('logout') }}">
-                  @csrf
-                  <a class="menu-item danger" href="{{ route('logout') }}"
-                     onclick="event.preventDefault(); this.closest('form').submit();">
-                    <svg class="mi" viewBox="0 0 24 24" fill="none"><path d="M15 12H3m12 0l-4-4m4 4l-4 4M21 3v18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span>Log Out</span>
-                  </a>
-                </form>
-              </div>
+              </form>
             </x-slot>
           </x-dropdown>
         @else
@@ -204,10 +211,14 @@
       color:#065f46; transition:all .2s ease;
       box-shadow:0 1px 2px rgba(0,0,0,.05);
       font-size:.82rem;
+      cursor:pointer;
+      position:relative;
+      z-index:10;
     }
     .profile-trigger:hover{
       background:var(--mint-2); color:var(--mint-text); border-color:#a6ebc9;
       transform:translateY(-1px);
+      box-shadow:0 2px 4px rgba(0,0,0,.08);
     }
     .profile-trigger .avatar{
       width:26px; height:26px; border-radius:9999px;
@@ -219,14 +230,6 @@
     .profile-trigger .caret{ width:14px; height:14px; opacity:.8; }
 
     /* ========== Dropdown (Profile + Logout COMPACT) ========== */
-    .dropdown-panel{
-      min-width:11.5rem;
-      background:#ffffff;
-      border:1px solid rgba(184,232,212,.9);
-      box-shadow:0 6px 16px rgba(6,95,70,.1);
-      border-radius:10px;
-      overflow:hidden;
-    }
     .menu-item{
       display:flex; align-items:center; gap:.5rem;
       padding:.4rem .7rem; font-size:.8rem; color:var(--mint-text);

@@ -1,7 +1,7 @@
 <x-app-layout>
   <x-slot name="header">
     <h2 class="page-title">
-      Detail Pesanan #{{ $order->id }}
+      Detail Pesanan {{ $order->order_number }}
     </h2>
   </x-slot>
 
@@ -58,7 +58,7 @@
           </div>
 
           <div class="total-row">
-            <span>Total</span>
+            <span>Total :</span>
             <strong>Rp {{ number_format($order->total, 0, ',', '.') }}</strong>
           </div>
 
@@ -121,14 +121,42 @@
     .tbl tbody td{padding:12px;border-bottom:1px solid var(--border);font-size:14px}
 
     /* Total row */
-    .total-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:15px}
+    .total-row{
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+      margin-top:12px;
+      padding-right:12px;
+      font-size:18px;
+      font-weight:700;
+      gap:6px;
+      color:#0f172a;
+    }
     .total-row strong{font-size:18px;color:#0f172a}
 
     /* Select & Buttons – match create.blade */
-    .sel{padding:11px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:14px;outline:none;margin-right:10px}
+    .sel{
+      padding:8px 14px;
+      border:2px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+      font-size:13px;
+      font-weight:700;
+      color:#0f172a;
+      outline:none;
+      margin-right:12px;
+      min-width:130px;
+      cursor:pointer;
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat:no-repeat;
+      background-position:right 10px center;
+      background-size:18px;
+      padding-right:36px;
+    }
     .sel:focus{border-color:var(--yellow-300);box-shadow:0 0 0 3px rgba(247,233,107,.2)}
 
-    .btn{display:inline-flex;align-items:center;gap:6px;border-radius:12px;padding:10px 16px;font-weight:700;font-size:13px;border:1px solid transparent;cursor:pointer;text-decoration:none;transition:.2s}
+    .btn{display:inline-flex;align-items:center;gap:6px;border-radius:12px;padding:8px 14px;font-weight:700;font-size:13px;border:2px solid transparent;cursor:pointer;text-decoration:none;transition:.2s}
     .btn-primary{background:linear-gradient(135deg,var(--yellow-300),var(--yellow-200));color:#713f12;box-shadow:0 4px 12px rgba(243,219,55,.3)}
     .btn-primary:hover{background:linear-gradient(135deg,var(--yellow-200),var(--yellow-100));transform:translateY(-2px);box-shadow:0 6px 16px rgba(243,219,55,.4)}
     .btn-ghost{background:#fff;border:1px solid var(--border);color:#111827}

@@ -14,7 +14,7 @@ class CartController extends Controller
     public function __construct()
     {
         // Wajib login untuk operasi keranjang (lihat catatan di bawah kalau belum pasang auth)
-        $this->middleware('auth')->except(['show']); // show bisa kamu buat public kalau mau
+        $this->middleware('auth')->except(['show']); 
     }
 
     /**
@@ -51,6 +51,11 @@ class CartController extends Controller
             throw ValidationException::withMessages(['product_id' => 'Produk tidak aktif.']);
         }
 
+        // Cek stok habis
+        if ($product->stock <= 0) {
+            return back()->with('error', 'Stok habis! Produk tidak dapat ditambahkan ke keranjang.');
+        }
+
         $cart = Cart::firstOrCreate(['user_id' => $userId]);
 
         $item = CartItem::firstOrNew([
@@ -61,9 +66,9 @@ class CartController extends Controller
         $newQty = ($item->exists ? $item->qty : 0) + $validated['qty'];
         if ($newQty < 1) $newQty = 1;
 
-        // (opsional) validasi stok
+        // Validasi stok mencukupi
         if ($product->stock < $newQty) {
-            throw ValidationException::withMessages(['qty' => 'Stok tidak mencukupi.']);
+            return back()->with('error', 'Stok tidak mencukupi! Hanya tersedia ' . $product->stock . ' pcs.');
         }
 
         $item->qty = $newQty;
@@ -88,7 +93,7 @@ class CartController extends Controller
 
         // validasi stok
         if ($item->product->stock < $request->qty) {
-            throw ValidationException::withMessages(['qty' => 'Stok tidak mencukupi.']);
+            return back()->with('error', 'Stok tidak mencukupi! Tersedia hanya ' . $item->product->stock . ' item.');
         }
 
         $item->qty = (int) $request->qty;
@@ -104,7 +109,7 @@ class CartController extends Controller
     public function destroy(CartItem $item)
     {
         $userId = Auth::id() ?? abort(403, 'Harus login.');
-        if ($item->cart->user_id !== $userId) {
+        if ($item->cart->user_id !== $userId) { // misal ada orang gabut yang F12 terus ubah'
             abort(403, 'Tidak boleh menghapus item orang lain.');
         }
 

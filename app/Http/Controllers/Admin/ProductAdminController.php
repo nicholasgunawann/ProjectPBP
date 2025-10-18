@@ -52,13 +52,19 @@ class ProductAdminController extends Controller
             'stock'       => ['required','integer','min:0'],
             'category_id' => ['required','exists:categories,id'],
             'is_active'   => ['nullable','boolean'],
+            'image'       => ['nullable','image','mimes:jpeg,png,jpg,gif','max:2048'],
         ]);
 
         $validated['is_active'] = (bool)($validated['is_active'] ?? true);
 
-        Product::create($validated);
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
 
-        return redirect()->route('admin.products.index')->with('success','Produk dibuat.');
+    Product::create($validated);
+
+    return redirect()->route('admin.products.index')->with('success','Produk berhasil ditambahkan');
     }
 
     public function edit(Product $product)
@@ -75,9 +81,26 @@ class ProductAdminController extends Controller
             'stock'       => ['required','integer','min:0'],
             'category_id' => ['required','exists:categories,id'],
             'is_active'   => ['nullable','boolean'],
+            'image'       => ['nullable','image','mimes:jpeg,png,jpg,gif','max:2048'],
         ]);
 
         $validated['is_active'] = (bool)($validated['is_active'] ?? false);
+
+        // Handle checkbox hapus gambar
+        if ($request->has('remove_image') && $request->remove_image == '1') {
+            if ($product->image && \Storage::disk('public')->exists($product->image)) {
+                \Storage::disk('public')->delete($product->image);
+            }
+            $validated['image'] = null;
+        }
+        // Handle upload gambar
+        elseif ($request->hasFile('image')) {
+            // Delete gambar lama (jika ada)
+            if ($product->image && \Storage::disk('public')->exists($product->image)) {
+                \Storage::disk('public')->delete($product->image);
+            }
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
 
         $product->update($validated);
 
@@ -88,32 +111,40 @@ class ProductAdminController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        // jika masih ada di keranjang pelanggan
-        if ($product->cartItems()->exists()) {
-            // jika admin sudah konfirmasi, hapus pakai cascade
+        // Cek apakah produk stok > 0 atau masih ada di keranjang
+        $hasStock = $product->stock > 0;
+        $inCart = $product->cartItems()->exists();
+
+        // Jika stok > 0 ATAU ada di keranjang, minta konfirmasi
+        if ($hasStock || $inCart) {
+            // Jika admin sudah konfirmasi, hapus
             if ($request->has('confirm') && $request->confirm == 'yes') {
                 $product->delete(); 
                 return redirect()->route('admin.products.index')
-                                ->with('success', 'Produk dan item terkait di keranjang berhasil dihapus.');
+                                ->with('success', 'Produk berhasil dihapus.');
             }
 
-            // jika admin belum konfirmasi, mengirimkan pesan ke view
+            // Jika belum konfirmasi, minta konfirmasi
+            $message = '';
+            if ($hasStock && $inCart) {
+                $message = "Produk ini masih memiliki stok ({$product->stock}) dan ada di keranjang pelanggan. Anda yakin akan menghapus?";
+            } elseif ($hasStock) {
+                $message = "Produk ini masih memiliki stok ({$product->stock}). Anda yakin akan menghapus?";
+            } else {
+                $message = "Produk ini masih ada di keranjang pelanggan. Anda yakin akan menghapus?";
+            }
+
             return back()->with('confirm_delete', [
                 'id' => $product->id,
                 'name' => $product->name,
-                'message' => "Produk ini masih ada di keranjang pelanggan. Anda yakin akan menghapus produk ini?",
+                'message' => $message,
             ]);
         }
 
-        // jika tidak ada di keranjang ataupun stok kosong
-        if ($product->stock <= 0 || !$product->cartItems()->exists()) {
-            $product->delete();
-            return redirect()->route('admin.products.index')
-                            ->with('success', 'Produk berhasil dihapus.');
-        }
-
-        // default fallback
-        return back()->with('error', 'Terjadi kesalahan saat menghapus produk.');
+        // Jika stok = 0 dan tidak ada di keranjang, langsung hapus
+        $product->delete();
+        return redirect()->route('admin.products.index')
+                        ->with('success', 'Produk berhasil dihapus.');
     }
 
     public function toggleActive(Product $product)

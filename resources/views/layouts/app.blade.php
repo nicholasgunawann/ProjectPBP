@@ -13,6 +13,9 @@
       <link rel="preconnect" href="https://fonts.gstatic.com">
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+      {{-- Alpine.js CDN (backup) --}}
+      <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
       {{-- Vite assets --}}
       @vite(['resources/css/app.css', 'resources/js/app.js'])
   </head>
@@ -45,6 +48,58 @@
                   </div>
               </div>
           </main>
+
+          {{-- TOAST NOTIFICATION SUCCESS --}}
+          @if(session('success'))
+          <div x-data="{ show: true }" 
+               x-show="show" 
+               x-init="setTimeout(() => show = false, 3000)"
+               x-transition:enter="transition ease-out duration-300"
+               x-transition:enter-start="opacity-0 transform translate-y-2"
+               x-transition:enter-end="opacity-100 transform translate-y-0"
+               x-transition:leave="transition ease-in duration-300"
+               x-transition:leave-start="opacity-100"
+               x-transition:leave-end="opacity-0"
+               class="toast-notification toast-success">
+              <div class="toast-content">
+                  <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span class="toast-message">{{ session('success') }}</span>
+                  <button @click="show = false" class="toast-close">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                  </button>
+              </div>
+          </div>
+          @endif
+
+          {{-- TOAST NOTIFICATION ERROR --}}
+          @if(session('error'))
+          <div x-data="{ show: true }" 
+               x-show="show" 
+               x-init="setTimeout(() => show = false, 3000)"
+               x-transition:enter="transition ease-out duration-300"
+               x-transition:enter-start="opacity-0 transform translate-y-2"
+               x-transition:enter-end="opacity-100 transform translate-y-0"
+               x-transition:leave="transition ease-in duration-300"
+               x-transition:leave-start="opacity-100"
+               x-transition:leave-end="opacity-0"
+               class="toast-notification toast-error">
+              <div class="toast-content">
+                  <svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                  <span class="toast-message">{{ session('error') }}</span>
+                  <button @click="show = false" class="toast-close">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                  </button>
+              </div>
+          </div>
+          @endif
       </div>
 
       {{-- STYLE ZONE --}}
@@ -110,6 +165,86 @@
           position: relative;
           z-index: 10;
           color: #000000;
+        }
+
+        /* ========== TOAST NOTIFICATION ========== */
+        .toast-notification {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 9999;
+          max-width: 400px;
+        }
+        
+        /* Toast Success */
+        .toast-success .toast-content {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: linear-gradient(135deg, #d7f5da, #bff0c2);
+          border: 2px solid #9ae2a0;
+          border-radius: 14px;
+          padding: 14px 18px;
+          box-shadow: 0 10px 30px rgba(6, 95, 70, 0.2);
+          backdrop-filter: blur(10px);
+        }
+        .toast-success .toast-icon {
+          width: 24px;
+          height: 24px;
+          color: #065f46;
+          flex-shrink: 0;
+        }
+        .toast-success .toast-message {
+          flex: 1;
+          font-size: 14px;
+          font-weight: 600;
+          color: #064e3b;
+        }
+        
+        /* Toast Error */
+        .toast-error .toast-content {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: linear-gradient(135deg, #fee2e2, #fecaca);
+          border: 2px solid #fca5a5;
+          border-radius: 14px;
+          padding: 14px 18px;
+          box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);
+          backdrop-filter: blur(10px);
+        }
+        .toast-error .toast-icon {
+          width: 24px;
+          height: 24px;
+          color: #991b1b;
+          flex-shrink: 0;
+        }
+        .toast-error .toast-message {
+          flex: 1;
+          font-size: 14px;
+          font-weight: 600;
+          color: #7f1d1d;
+        }
+        .toast-close {
+          width: 20px;
+          height: 20px;
+          color: #065f46;
+          cursor: pointer;
+          background: transparent;
+          border: none;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+          transition: all 0.2s;
+        }
+        .toast-close:hover {
+          background: rgba(6, 95, 70, 0.1);
+        }
+        .toast-close svg {
+          width: 16px;
+          height: 16px;
         }
       </style>
   </body>

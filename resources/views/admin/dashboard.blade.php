@@ -6,40 +6,12 @@
 
   <div class="dashboard-scope">
     <div class="wrap">
-      {{-- TAB NAVIGATION (tetap sesuai tema Product) --}}
-      <div class="tab-nav">
-        <a href="{{ route('admin.products.index') }}" class="tab-item">
-          <svg class="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-          </svg>
-          Produk
-        </a>
-        <a href="{{ route('admin.orders.index') }}" class="tab-item">
-          <svg class="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-            </path>
-          </svg>
-          Pesanan
-        </a>
-        <div class="tab-spacer"></div>
-        <span class="tab-item active">
-          <svg class="tab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6">
-            </path>
-          </svg>
-          Dashboard
-        </span>
-      </div>
-
       {{-- CARD UTAMA --}}
       <div class="card">
         <div class="card-bg"></div>
         <div class="card-body">
           <h3 class="title">Selamat datang, {{ auth()->user()->name }} 👋</h3>
-          <p class="subtle">Ringkasan toko hari ini.</p>
+          <p class="subtle">Ringkasan toko anda</p>
 
           {{-- STAT CARDS (semua warna berbeda) --}}
           <div class="stats">
@@ -70,7 +42,7 @@
 
             <div class="stat stat-ink">
               <div class="stat-k">Total Pengguna</div>
-              <div class="stat-v">{{ \App\Models\User::count() }}</div>
+              <div class="stat-v">{{ \App\Models\User::where('role', 'user')->count() }}</div>
             </div>
           </div>
         </div>
@@ -96,14 +68,6 @@
     }
     .page-title{font:600 20px/1.3 ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;margin:0;color:#1f2937}
     .dashboard-scope .wrap{padding:24px}
-
-    /* TAB NAV */
-    .tab-nav{display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border)}
-    .tab-item{display:inline-flex;align-items:center;gap:6px;padding:12px 20px;border-radius:12px 12px 0 0;font-weight:600;font-size:14px;color:#64748b;text-decoration:none;transition:.2s;border-bottom:3px solid transparent;margin-bottom:-2px}
-    .tab-item:hover{color:#0f172a;background:#f9fafb}
-    .tab-item.active{color:#713f12;background:linear-gradient(135deg,#fef3a8,#f7e96b);border-bottom-color:var(--yellow-300)}
-    .tab-icon{width:18px;height:18px}
-    .tab-spacer{flex:1}
 
     /* CARD */
     .card{position:relative;border:1px solid var(--border);border-radius:16px;background:#fff;box-shadow:var(--shadow);overflow:hidden}

@@ -62,10 +62,13 @@
                 </select>
               </div>
 
-              <label class="check">
-                <input type="checkbox" name="is_active" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
-                <span>Aktif</span>
-              </label>
+              <div class="form-group">
+                <label>Status</label>
+                <select name="is_active" required>
+                  <option value="1" @selected(old('is_active', $product->is_active) == 1)>Aktif</option>
+                  <option value="0" @selected(old('is_active', $product->is_active) == 0)>Nonaktif</option>
+                </select>
+              </div>
             </div>
 
             <!-- RIGHT: gambar -->
@@ -146,12 +149,22 @@
     @media(min-width:980px){.product-edit-scope .grid{grid-template-columns:1fr 1fr}}
     .product-edit-scope .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
+    .product-edit-scope .form-group{margin-bottom:18px}
     .product-edit-scope .label, 
     .product-edit-scope .form-group label{display:block;font-weight:600;color:#0f172a;font-size:14px;margin:0 0 6px}
     .product-edit-scope .form-group input, 
     .product-edit-scope .form-group select{
       width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;
       font-size:14px;outline:none;transition:.15s border,.15s box-shadow;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+    .product-edit-scope .form-group select{
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23334155' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
     }
     .product-edit-scope .form-group input:focus, 
     .product-edit-scope .form-group select:focus{border-color:var(--yellow-300);box-shadow:var(--ring)}

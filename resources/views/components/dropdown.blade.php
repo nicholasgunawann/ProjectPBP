@@ -22,7 +22,7 @@ switch ($width) {
 
 <div class="relative" x-data="{ open: false }" @click.outside="open = false" @close.stop="open = false">
     {{-- Trigger --}}
-    <div @click="open = !open" class="cursor-pointer select-none">
+    <div @click="open = !open; console.log('Dropdown clicked, open:', open)" class="cursor-pointer select-none" style="cursor: pointer !important;">
         {{ $trigger }}
     </div>
 
@@ -35,11 +35,10 @@ switch ($width) {
         x-transition:leave="transition ease-in duration-75"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        style="display: none;"
-        class="absolute z-50 mt-2 {{ $width }} rounded-md shadow-lg {{ $alignmentClasses }} bg-white"
+        style="display: none; z-index: 9999 !important;"
+        class="absolute z-[9999] mt-2 {{ $width }} rounded-[10px] {{ $alignmentClasses }} bg-white border border-[rgba(184,232,212,.9)] overflow-hidden"
+        style="display: none; z-index: 9999 !important; box-shadow: 0 6px 16px rgba(6,95,70,.1);"
     >
-        <div class="rounded-md ring-1 ring-black ring-opacity-5 {{ $contentClasses }}">
-            {{ $content }}
-        </div>
+        {{ $content }}
     </div>
 </div>

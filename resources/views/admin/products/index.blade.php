@@ -7,6 +7,25 @@
   <div class="product-index-scope">
     <div class="wrap">
 
+      {{-- MODAL KONFIRMASI HAPUS --}}
+      @if(session('confirm_delete'))
+      <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+          <h3 class="modal-title">⚠️ Konfirmasi Hapus</h3>
+          <p class="modal-message">{{ session('confirm_delete')['message'] }}</p>
+          <div class="modal-actions">
+            <button onclick="document.getElementById('confirmModal').style.display='none'" class="btn btn-ghost">Batal</button>
+            <form method="POST" action="{{ route('admin.products.destroy', session('confirm_delete')['id']) }}" style="display:inline;">
+              @csrf
+              @method('DELETE')
+              <input type="hidden" name="confirm" value="yes">
+              <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      @endif
+
       {{-- TAB NAVIGATION --}}
       <div class="tab-nav">
         <a href="{{ route('admin.products.index') }}" class="tab-item active">
@@ -92,9 +111,8 @@
               </div>
 
               <div class="actions">
-                <a class="btn btn-ghost" href="{{ route('products.show', $p->id) }}">Detail</a>
                 <a class="btn btn-primary" href="{{ route('admin.products.edit', $p->id) }}">Edit</a>
-                <form method="POST" action="{{ route('admin.products.destroy', $p->id) }}" onsubmit="return confirm('Hapus produk ini?')" style="display:inline;">
+                <form method="POST" action="{{ route('admin.products.destroy', $p->id) }}" style="display:inline;">
                   @csrf
                   @method('DELETE')
                   <button class="btn btn-danger" type="submit">Hapus</button>
@@ -320,5 +338,12 @@
     .product-index-scope .empty-card{border:1px solid var(--border);border-radius:16px;background:#fff;width:100%;max-width:520px;padding:24px;text-align:center;box-shadow:var(--shadow)}
     .product-index-scope .empty .emoji{font-size:28px}
     .product-index-scope .empty .txt{margin:8px 0 16px;color:#334155}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .modal-box{background:#fff;border-radius:16px;padding:24px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+    .modal-title{margin:0 0 12px;font:700 18px/1.35 ui-sans-serif,system-ui;color:#0f172a}
+    .modal-message{margin:0 0 20px;color:#374151;font-size:14px;line-height:1.6;font-family:ui-sans-serif,system-ui}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end}
   </style>
 </x-app-layout>

@@ -56,8 +56,12 @@ Route::prefix('admin')
         Route::patch('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('orders.updateStatus');
     });
 
-// Route bawaan auth/profile dari Laravel Breeze
+// Route bawaan auth/profile dari Laravel Breeze (hanya untuk user biasa)
 Route::get('/dashboard', function () {
+    // Redirect admin ke dashboard admin
+    if (auth()->user()->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 

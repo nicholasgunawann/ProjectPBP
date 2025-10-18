@@ -21,6 +21,30 @@
         </a>
       </div>
 
+      {{-- STATUS FILTER TABS --}}
+      <div class="status-tabs">
+        <a href="{{ route('admin.orders.index') }}" 
+           class="status-tab {{ request('status') == null ? 'active' : '' }}">
+          Semua
+        </a>
+        <a href="{{ route('admin.orders.index', ['status' => 'diproses']) }}" 
+           class="status-tab {{ request('status') == 'diproses' ? 'active' : '' }}">
+          Diproses
+        </a>
+        <a href="{{ route('admin.orders.index', ['status' => 'dikirim']) }}" 
+           class="status-tab {{ request('status') == 'dikirim' ? 'active' : '' }}">
+          Dikirim
+        </a>
+        <a href="{{ route('admin.orders.index', ['status' => 'selesai']) }}" 
+           class="status-tab {{ request('status') == 'selesai' ? 'active' : '' }}">
+          Selesai
+        </a>
+        <a href="{{ route('admin.orders.index', ['status' => 'batal']) }}" 
+           class="status-tab {{ request('status') == 'batal' ? 'active' : '' }}">
+          Dibatalkan
+        </a>
+      </div>
+
       {{-- TABLE WRAPPER --}}
       <div class="card">
         @if ($orders->count())
@@ -66,7 +90,19 @@
           <div class="empty">
             <div class="empty-card">
               <div class="emoji">📭</div>
-              <div class="txt">Belum ada pesanan yang masuk.</div>
+              <div class="txt">
+                @if(request('status') == 'diproses')
+                  Belum ada pesanan dengan status diproses.
+                @elseif(request('status') == 'dikirim')
+                  Belum ada pesanan dengan status dikirim.
+                @elseif(request('status') == 'selesai')
+                  Belum ada pesanan dengan status selesai.
+                @elseif(request('status') == 'batal')
+                  Belum ada pesanan dengan status dibatalkan.
+                @else
+                  Belum ada pesanan.
+                @endif
+              </div>
             </div>
           </div>
         @endif
@@ -95,6 +131,40 @@
     .tab-item:hover{color:#0f172a;background:#f9fafb}
     .tab-item.active{color:#713f12;background:linear-gradient(135deg,#fef3a8,#f7e96b);border-bottom-color:var(--yellow-300)}
     .tab-icon{width:18px;height:18px}
+
+    /* Status Filter Tabs */
+    .status-tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:20px;
+      flex-wrap:wrap;
+      border-bottom:2px solid var(--border);
+      padding-bottom:10px;
+    }
+    .status-tab{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 14px;
+      border-radius:10px;
+      font-weight:700;
+      font-size:13px;
+      color:#64748b;
+      background:#fff;
+      border:2px solid var(--border);
+      text-decoration:none;
+      transition:0.2s all;
+      white-space:nowrap;
+    }
+    .status-tab:hover{
+      color:#0f172a;
+      background:#f9fafb;
+      border-color:#cbd5e1;
+    }
+    .status-tab.active{
+      color:#713f12;
+      background:linear-gradient(135deg,#fef3a8,#f7e96b);
+      border-color:#f3db37;
+    }
 
     /* Card + table */
     .card{border:1px solid var(--border);border-radius:16px;background:#fff;box-shadow:var(--shadow);overflow:hidden}
