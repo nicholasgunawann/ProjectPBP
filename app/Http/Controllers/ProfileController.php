@@ -34,7 +34,7 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('profile.edit')->with('success', 'Informasi profil berhasil diperbarui!');
     }
 
     /**
@@ -42,9 +42,15 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        // Validasi password
+        $request->validate([
+            'password' => ['required'],
         ]);
+
+        // Cek apakah password benar
+        if (!\Hash::check($request->password, $request->user()->password)) {
+            return back()->with('error', 'Password salah! Silakan coba lagi.');
+        }
 
         $user = $request->user();
 

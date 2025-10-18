@@ -46,7 +46,7 @@
             <div class="stat-label">Item di Keranjang</div>
             @php
               $cart = \App\Models\Cart::where('user_id', auth()->id())->first();
-              $cartCount = $cart ? $cart->items()->sum('qty') : 0;
+              $cartCount = $cart ? $cart->items()->count() : 0;
             @endphp
             <div class="stat-value">{{ $cartCount }}</div>
           </div>
