@@ -1,48 +1,45 @@
-<section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Update Password') }}
-        </h2>
+<section class="pass-scope">
+  <div class="card">
+    <div class="card-bg"></div>
+    <div class="card-body">
+      <h2 class="title">Perbarui Password</h2>
+      <p class="subtitle">Pastikan password baru Anda aman dan mudah diingat.</p>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
-        </p>
-    </header>
-
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
+      <form method="post" action="{{ route('password.update') }}">
         @csrf
         @method('put')
 
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
-        </div>
+        <label class="label">Password Lama</label>
+        <input type="password" name="current_password" required>
 
-        <div>
-            <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
-        </div>
+        <label class="label">Password Baru</label>
+        <input type="password" name="password" required>
 
-        <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
-        </div>
+        <label class="label">Konfirmasi Password</label>
+        <input type="password" name="password_confirmation" required>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </form>
+    </div>
+  </div>
 
-            @if (session('status') === 'password-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
-            @endif
-        </div>
-    </form>
+  <style>
+    .pass-scope{--yellow-200:#f7e96b;--yellow-300:#f3db37;--green-200:#bff0c2;--green-300:#9ae2a0;
+      --border:#e2e8f0;--ink:#111827;}
+    .card{position:relative;background:#fff;border:1px solid var(--border);
+      border-radius:16px;box-shadow:0 10px 30px rgba(16,24,40,.08);padding:24px;overflow:hidden;}
+    .card-bg{position:absolute;inset:0;background:linear-gradient(135deg,var(--yellow-200),var(--green-200));
+      opacity:.25;filter:blur(60px);}
+    .card-body{position:relative;}
+    .title{font:700 18px ui-sans-serif;color:var(--ink);margin:0 0 4px;}
+    .subtitle{font-size:14px;color:#475569;margin-bottom:16px;}
+    .label{display:block;font-size:14px;color:#334155;margin-bottom:4px;font-weight:600;}
+    input{width:100%;padding:10px 12px;border:1px solid var(--border);
+      border-radius:12px;font-size:14px;margin-bottom:14px;outline:none;}
+    input:focus{border-color:var(--yellow-300);box-shadow:0 0 0 3px rgba(247,233,107,.25);}
+    .btn{padding:11px 18px;border-radius:12px;font-weight:700;font-size:14px;
+      border:none;cursor:pointer;transition:.2s;}
+    .btn-primary{background:linear-gradient(135deg,var(--yellow-300),var(--yellow-200));color:#713f12;}
+    .btn-primary:hover{background:linear-gradient(135deg,var(--yellow-200),var(--yellow-100));transform:translateY(-2px);}
+  </style>
 </section>
