@@ -42,7 +42,7 @@
 
       <div class="mt-4 flex gap-2">
         <form method="POST" action="{{ route('cart.clear') }}">@csrf @method('DELETE')
-          <button class="px-4 py-2 rounded bg-gray-200">Kosongkan</button>
+          <button class="px-4 py-2 rounded bg-gray-200">Kosongkan Keranjang</button>
         </form>
       </div>
 
